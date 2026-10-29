@@ -1,4 +1,4 @@
-# CPS511 Assignment 1
+# CPS511 Assignment 2
 
 ## Build Instructions
 Ensure that the following are downloaded on your system:
