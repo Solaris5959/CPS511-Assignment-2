@@ -16,6 +16,7 @@ private:
     Camera3D camera;
     Vector3 positionOffset;
     Vector3 targetOffset;
+    Vector3 baseUp;
 
 public:
     /**
