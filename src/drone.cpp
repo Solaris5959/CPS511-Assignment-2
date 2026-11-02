@@ -113,7 +113,7 @@ void Drone::update() // Handle user input, drives movement and reset functionali
         velocity.y -= G * GetFrameTime();
     }
 
-    // Ramp up/down rotor speed to reach target, independet of framerate
+    // Ramp up/down rotor speed to reach target, independent of framerate
     rotorSpeed += (targetRotorSpeed - rotorSpeed) * 3.0f * GetFrameTime();
 
     // Update drone position based on updated instantaneous velocity 

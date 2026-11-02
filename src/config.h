@@ -70,7 +70,7 @@ namespace Config
     inline constexpr Vector3 THIRD_PERSON_OFFSET = {0.0f, 2.5f, -5.0f}; // Camera position relative to drone position (Behind, above)
     inline constexpr Vector3 THIRD_PERSON_TARGET = {0.0f, 0.0f, 0.0f};  // Point camera at drone (local origin)
     inline constexpr float THIRD_PERSON_FOV = 45.0f;                    // Higher FOV for third person cam
-    inline constexpr Vector3 FIRST_PERSON_OFFSET = {0.0f, 0.1f, 0.0f};  // Camera position relative to drone position (Slightly below, technically inside chassis)
-    inline constexpr Vector3 FIRST_PERSON_TARGET = {0.0f, -1.0, 0.01f}; // Point camera directly down, slightly forward (so not parallel to camera's `up` dir)
-    inline constexpr float FIRST_PERSON_FOV = 30.0f;                    // Narrow FOV for ground cam
+    inline constexpr Vector3 FIRST_PERSON_OFFSET = {0.0f, -0.5f, 0.0f};  // Camera position relative to drone position (Slightly below, technically inside chassis)
+    inline constexpr Vector3 FIRST_PERSON_TARGET = {0.0f, -1.0, 0.0f}; // Point camera directly down, slightly forward (so not parallel to camera's `up` dir)
+    inline constexpr float FIRST_PERSON_WIDTH = 1.0f;                  // Orthographic camera width for ground cam
 }

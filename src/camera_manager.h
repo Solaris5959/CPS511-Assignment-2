@@ -29,8 +29,9 @@ public:
      * \param baseOffset Camera offset relative to local drone coordinates
      * \param baseTarget Camera target relative to local drone coordinates
      * \param FOV Field of view of Camera3D object
+     * \param cameraType
      */
-    CameraManager(Vector3 baseOffset, Vector3 baseTarget, float FOV);
+    CameraManager(Vector3 baseOffset, Vector3 baseTarget, float FOV, CameraProjection cameraType);
 
     /**
      * \brief Update camera position based on drone position.

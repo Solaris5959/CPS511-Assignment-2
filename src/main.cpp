@@ -65,8 +65,8 @@ int main()
     Vector3 currentLightColour = LIGHT_COLOUR_DAY;
 
     // Initialize Cameras, set active to third person
-    CameraManager thirdPersonCamera(THIRD_PERSON_OFFSET, THIRD_PERSON_TARGET, THIRD_PERSON_FOV);
-    CameraManager firstPersonCamera(FIRST_PERSON_OFFSET, FIRST_PERSON_TARGET, FIRST_PERSON_FOV);
+    CameraManager thirdPersonCamera(THIRD_PERSON_OFFSET, THIRD_PERSON_TARGET, THIRD_PERSON_FOV, CAMERA_PERSPECTIVE);
+    CameraManager firstPersonCamera(FIRST_PERSON_OFFSET, FIRST_PERSON_TARGET, FIRST_PERSON_WIDTH, CAMERA_ORTHOGRAPHIC);
     CameraManager *camera = &thirdPersonCamera;
 
     // Initialize drone at world origin

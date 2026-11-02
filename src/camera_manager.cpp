@@ -4,7 +4,7 @@
 #include "camera_manager.h"
 #include "config.h"
 
-CameraManager::CameraManager(Vector3 baseOffset, Vector3 baseTarget, float FOV)
+CameraManager::CameraManager(Vector3 baseOffset, Vector3 baseTarget, float FOV, CameraProjection cameraType)
 {
     // Initialize drone-relative positions
     positionOffset = baseOffset;
@@ -13,8 +13,8 @@ CameraManager::CameraManager(Vector3 baseOffset, Vector3 baseTarget, float FOV)
     // Initialize camera settings
     camera = {0};
     camera.fovy = FOV;
-    camera.up = (Vector3){0.0f, 1.0f, 0.0f}; // Sky relative to camera
-    camera.projection = CAMERA_PERSPECTIVE;
+    camera.up = (cameraType == CAMERA_ORTHOGRAPHIC) ? Vector3UnitZ : Vector3UnitY; // Sky relative to camera (+y if perspective, +z if orthographic)
+    camera.projection = cameraType;
 
     camera.position = baseOffset; // Where camera is in scene
     camera.target = baseTarget;   // Where camera is pointing
