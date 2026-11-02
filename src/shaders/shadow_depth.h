@@ -60,10 +60,12 @@ uniform vec4 baseColor;
 out vec4 finalColor;
 
 void main() {
+    float bounds = 32.0;
+
     // Cull faces not visible to the sun, and shadows outside the ground plane
     if (vAlignment > 0.0 || 
-        vShadowBoundsXZ.x > 16.0 || vShadowBoundsXZ.x < -16.0 || 
-        vShadowBoundsXZ.y > 16.0 || vShadowBoundsXZ.y < -16.0) 
+        vShadowBoundsXZ.x > bounds || vShadowBoundsXZ.x < -bounds || 
+        vShadowBoundsXZ.y > bounds || vShadowBoundsXZ.y < -bounds) 
     {
         discard;
     }

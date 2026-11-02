@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <rlgl.h>
+#include <vector>
 
 #include "drone.h"
 #include "camera_manager.h"
@@ -16,6 +17,97 @@ Model cylModel;
 Model coneModel;
 Model planeModel;
 
+struct Building {
+    Vector3 position;
+    Color color;
+    float faceDirZ; // 1.0f means faces +Z (down), -1.0f means faces -Z (up)
+};
+
+// Reusable drawing function for both Model and Shadow passes
+void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const Matrix& worldRoot, Shader shader)
+{
+    // --- 1. Streets (T-Junction) ---
+    // Cross Street (Top of the T) - Runs left/right across the whole map
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.05f, 12.0f}, {0, 1, 0}, 0.0f, {64.0f, 0.1f, 10.0f})), shader, DARKGRAY);
+    
+    // Stem Street (Base of the T) - Feeds directly into the Yard and Driveway
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.05f, -1.5f}, {0, 1, 0}, 0.0f, {10.0f, 0.1f, 27.0f})), shader, DARKGRAY);
+    
+    // Dashed Centerlines
+    for (float x = -30.0f; x <= 30.0f; x += 4.0f) {
+        if (fabs(x) > 4.0f) {
+            DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({x, 0.06f, 12.0f}, {0, 1, 0}, 0.0f, {2.0f, 0.1f, 0.4f})), shader, YELLOW);
+        }
+    }
+    
+    for (float z = -13.0f; z <= 6.0f; z += 4.0f) {
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.06f, z}, {0, 1, 0}, 0.0f, {0.4f, 0.1f, 2.0f})), shader, YELLOW);
+    }
+
+    // --- 2. The 8 Houses ---
+    for (const auto& b : buildings)
+    {
+        Vector3 bodyPos = { b.position.x, 2.5f, b.position.z };
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(bodyPos, {0, 1, 0}, 0.0f, {8.0f, 5.0f, 6.0f})), shader, b.color);
+        
+        Vector3 doorPos = { b.position.x, 1.1f, b.position.z + (3.0f * b.faceDirZ) };
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(doorPos, {0, 1, 0}, 0.0f, {1.5f, 2.2f, 0.2f})), shader, DARKBROWN);
+
+        Vector3 win1Pos = { b.position.x - 2.5f, 3.2f, b.position.z + (3.0f * b.faceDirZ) };
+        Vector3 win2Pos = { b.position.x + 2.5f, 3.2f, b.position.z + (3.0f * b.faceDirZ) };
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win1Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win2Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
+
+        Vector3 padPos = { b.position.x, 0.05f, b.position.z + (4.5f * b.faceDirZ) };
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(padPos, {0, 1, 0}, 0.0f, {6.0f, 0.1f, 6.0f})), shader, LIGHTGRAY);
+    }
+
+    // --- 3. Package Yard (Attached to Left wall of Warehouse) ---
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-8.0f, 0.04f, -22.0f}, {0, 1, 0}, 0.0f, {26.0f, 0.1f, 14.0f})), shader, Fade(LIGHTGRAY, 0.6f));
+    
+    // Yard Fencing (Back, Left, Front-Left, Right-Front)
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-8.0f,  1.5f, -29.0f}, {0, 1, 0}, 0.0f, {26.0f, 3.0f,  0.2f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-21.0f, 1.5f, -22.0f}, {0, 1, 0}, 0.0f, { 0.2f, 3.0f, 14.0f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-13.0f, 1.5f, -15.0f}, {0, 1, 0}, 0.0f, {16.0f, 3.0f,  0.2f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({ 5.0f,  1.5f, -17.0f}, {0, 1, 0}, 0.0f, { 0.2f, 3.0f,  4.0f})), shader, DARKGRAY);
+
+    // --- 4. Warehouse (Attached to Right of Yard) ---
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({10.0f, 0.045f, -17.0f}, {0, 1, 0}, 0.0f, {10.0f, 0.1f, 4.0f})), shader, DARKGRAY);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 1.5f, -24.0f}, {0, 1, 0}, 0.0f, {20.0f, 3.0f, 10.0f})), shader, LIGHTGRAY);
+
+    // Warehouse Vaulted Roof (Rotated 45 deg around X-Axis) -> Converted to radians!
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.0f, -24.0f}, {1, 0, 0}, 45.0f * DEG2RAD, {20.0f, 7.07f, 7.07f})), shader, DARKBLUE);
+
+    // Large Garage Door & Windows
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({10.0f, 1.25f, -18.9f}, {0, 1, 0}, 0.0f, {6.0f, 2.5f, 0.2f})), shader, GRAY);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({16.0f, 1.5f, -18.9f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({21.0f, 1.5f, -18.9f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
+}
+
+// Dense, randomized treeline along the 64x64 perimeter
+void DrawTreeline(Model& cyl, Model& cone, const Matrix& worldRoot, Shader shader) 
+{
+    auto DrawTree = [&](float x, float z) {
+        float sizeMod = 0.7f + 0.6f * fabs(sin(x * 9.1f + z * 13.7f)); 
+        float heightMod = 0.7f + 0.8f * fabs(cos(x * 7.3f - z * 11.2f));
+        
+        Matrix trunkLocal = TRS({x, 1.0f * heightMod, z}, {0,1,0}, 0.0f, {0.3f * sizeMod, 2.0f * heightMod, 0.3f * sizeMod});
+        DrawModelWithWorldMatrix(cyl, ParentChild(worldRoot, trunkLocal), shader, DARKBROWN);
+        
+        Matrix leafLocal = TRS({x, (2.0f * heightMod) + (1.5f * heightMod), z}, {0,1,0}, 0.0f, {1.6f * sizeMod, 3.0f * heightMod, 1.6f * sizeMod});
+        DrawModelWithWorldMatrix(cone, ParentChild(worldRoot, leafLocal), shader, DARKGREEN);
+    };
+
+    for (float i = -31.0f; i <= 31.0f; i += 2.5f) {
+        DrawTree(i, 31.0f);   // Top edge
+        DrawTree(i, -31.0f);  // Bottom edge
+        if (i < 6.0f || i > 18.0f) {
+            DrawTree(-31.0f, i); // Left edge
+            DrawTree( 31.0f, i); // Right edge
+        }
+    }
+}
+
 int main()
 {
     // Initialization
@@ -27,7 +119,7 @@ int main()
     cubeModel = LoadModelFromMesh(GenMeshCube(1.0f, 1.0f, 1.0f));       // Init primitive cube mesh
     cylModel = LoadModelFromMesh(GenMeshCylinder(1.0f, 1.0f, 24));      // Init primitive cylinder mesh
     coneModel = LoadModelFromMesh(GenMeshCone(1.0f, 1.0f, 20));         // Init primitive cone mesh
-    planeModel = LoadModelFromMesh(GenMeshPlane(32.0f, 32.0f, 16, 16)); // Init primitive plane mesh
+    planeModel = LoadModelFromMesh(GenMeshPlane(64.0f, 64.0f, 16, 16)); // Init primitive plane mesh
 
     // Render meshes with lighting shader
     cubeModel.materials[0].shader = lighting; 
@@ -71,6 +163,21 @@ int main()
 
     // Initialize drone at world origin
     Drone drone({0.0f, 0.0f, 0.0f});
+
+    // Define the 8-house neighborhood layout (Scaled for 64x64 grid)
+    std::vector<Building> neighborhood = {
+        // Left Side of T-Junction (X < 0)
+        {{-12.0f, 0.0f, 22.0f}, MAROON,   -1.0f}, // Top row, faces down (-Z)
+        {{-24.0f, 0.0f, 22.0f}, DARKBLUE, -1.0f},
+        {{-12.0f, 0.0f,  2.0f}, DARKGREEN, 1.0f}, // Bottom row, faces up (+Z)
+        {{-24.0f, 0.0f,  2.0f}, ORANGE,    1.0f},
+
+        // Right Side of T-Junction (X > 0)
+        {{ 12.0f, 0.0f, 22.0f}, ORANGE,   -1.0f}, // Top row, faces down (-Z)
+        {{ 24.0f, 0.0f, 22.0f}, DARKGREEN,-1.0f},
+        {{ 12.0f, 0.0f,  2.0f}, DARKBLUE,  1.0f}, // Bottom row, faces up (+Z)
+        {{ 24.0f, 0.0f,  2.0f}, MAROON,    1.0f}
+    };
 
     // Main Game Loop
     while (!WindowShouldClose())
@@ -148,13 +255,16 @@ int main()
 
                 Matrix planeLocal = TRS({0, -0.01f, 0}, Vector3UnitY, 0, UNIT_VECTOR);  // Move plane slightly below y=0 (prevents z-fighting with grid)
                 DrawModelWithWorldMatrix(planeModel, ParentChild(worldRoot, planeLocal), lighting, COLOUR_GROUND);  // Draw plane in world with lighting shader
-                DrawGrid(32, 1.0f);                                                                                 // Draw grid at y=0
+                DrawGrid(64, 1.0f);                                                                                 // Draw grid at y=0
 
                 drone.Draw();   // Draw drone (with lighting shader)
 
                 // Draw Buildings, Boxes, and border treeline
+                DrawNeighborhood(neighborhood, cubeModel, worldRoot, lighting);
+                DrawTreeline(cylModel, coneModel, worldRoot, lighting);
 
 
+                // Drone Bounding Box: DrawCube(Vector3Zero(), 3.7f, 2.6f, 5.0f, WHITE);
 
                 /* Shadow pass */
                 SetShaderValue(shadows, lightPosShadowLoc, &lightPos, SHADER_UNIFORM_VEC3);   // Set uniform sunlight direction in shadow shader
@@ -172,6 +282,9 @@ int main()
                 drone.Draw();           // Draw drone model as a shadow projected onto ground plane
 
                 // Draw shadows for buildings and boxes, maybe shadowmap?
+                // Draw Buildings, Boxes, and border treeline
+                // DrawNeighborhood(neighborhood, cubeModel);
+                // DrawTreeline(cylModel, coneModel);
 
                 SHADOW_RENDER = false;  // Reset shadow pass flag
                 rlEnableBackfaceCulling();
