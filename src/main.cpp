@@ -152,6 +152,9 @@ int main()
 
                 drone.Draw();   // Draw drone (with lighting shader)
 
+                // Draw Buildings, Boxes, and border treeline
+
+
 
                 /* Shadow pass */
                 SetShaderValue(shadows, lightPosShadowLoc, &lightPos, SHADER_UNIFORM_VEC3);   // Set uniform sunlight direction in shadow shader
@@ -167,6 +170,8 @@ int main()
                 rlDisableBackfaceCulling();
 
                 drone.Draw();           // Draw drone model as a shadow projected onto ground plane
+
+                // Draw shadows for buildings and boxes, maybe shadowmap?
 
                 SHADOW_RENDER = false;  // Reset shadow pass flag
                 rlEnableBackfaceCulling();
