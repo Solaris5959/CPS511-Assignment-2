@@ -283,8 +283,8 @@ int main()
 
                 // Draw shadows for buildings and boxes, maybe shadowmap?
                 // Draw Buildings, Boxes, and border treeline
-                // DrawNeighborhood(neighborhood, cubeModel);
-                // DrawTreeline(cylModel, coneModel);
+                DrawNeighborhood(neighborhood, cubeModel, worldRoot, lighting);
+                DrawTreeline(cylModel, coneModel, worldRoot, lighting);
 
                 SHADOW_RENDER = false;  // Reset shadow pass flag
                 rlEnableBackfaceCulling();
