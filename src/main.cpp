@@ -27,21 +27,18 @@ struct Building {
 void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const Matrix& worldRoot, Shader shader)
 {
     // --- 1. Streets (T-Junction) ---
-    // Cross Street (Top of the T) - Runs left/right across the whole map
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.05f, 12.0f}, {0, 1, 0}, 0.0f, {64.0f, 0.1f, 10.0f})), shader, DARKGRAY);
-    
-    // Stem Street (Base of the T) - Feeds directly into the Yard and Driveway
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.05f, -1.5f}, {0, 1, 0}, 0.0f, {10.0f, 0.1f, 27.0f})), shader, DARKGRAY);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.05f, -4.0f}, {0, 1, 0}, 0.0f, {10.0f, 0.1f, 22.0f})), shader, DARKGRAY);
     
     // Dashed Centerlines
     for (float x = -30.0f; x <= 30.0f; x += 4.0f) {
         if (fabs(x) > 4.0f) {
-            DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({x, 0.06f, 12.0f}, {0, 1, 0}, 0.0f, {2.0f, 0.1f, 0.4f})), shader, YELLOW);
+            DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({x, 0.06f, 12.0f}, {0, 1, 0}, 0.0f, {2.0f, 0.12f, 0.4f})), shader, YELLOW);
         }
     }
     
     for (float z = -13.0f; z <= 6.0f; z += 4.0f) {
-        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.06f, z}, {0, 1, 0}, 0.0f, {0.4f, 0.1f, 2.0f})), shader, YELLOW);
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({0.0f, 0.06f, z}, {0, 1, 0}, 0.0f, {0.4f, 0.12f, 2.0f})), shader, YELLOW);
     }
 
     // --- 2. The 8 Houses ---
@@ -50,38 +47,45 @@ void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const
         Vector3 bodyPos = { b.position.x, 2.5f, b.position.z };
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(bodyPos, {0, 1, 0}, 0.0f, {8.0f, 5.0f, 6.0f})), shader, b.color);
         
-        Vector3 doorPos = { b.position.x, 1.1f, b.position.z + (3.0f * b.faceDirZ) };
+        Vector3 doorPos = { b.position.x, 1.1f, b.position.z + (3.05f * b.faceDirZ) };
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(doorPos, {0, 1, 0}, 0.0f, {1.5f, 2.2f, 0.2f})), shader, DARKBROWN);
 
-        Vector3 win1Pos = { b.position.x - 2.5f, 3.2f, b.position.z + (3.0f * b.faceDirZ) };
-        Vector3 win2Pos = { b.position.x + 2.5f, 3.2f, b.position.z + (3.0f * b.faceDirZ) };
+        Vector3 win1Pos = { b.position.x - 2.5f, 3.2f, b.position.z + (3.05f * b.faceDirZ) };
+        Vector3 win2Pos = { b.position.x + 2.5f, 3.2f, b.position.z + (3.05f * b.faceDirZ) };
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win1Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win2Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
 
-        Vector3 padPos = { b.position.x, 0.05f, b.position.z + (4.5f * b.faceDirZ) };
-        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(padPos, {0, 1, 0}, 0.0f, {6.0f, 0.1f, 6.0f})), shader, LIGHTGRAY);
+        // PAD FIX: Centers exactly in the 2.0 unit gap between the house and the street
+        // Z-scale is 2.2 to safely embed into the house and street without tearing
+        // Y is 0.055 to sit just barely on top of the street asphalt (0.05)
+        Vector3 padPos = { b.position.x, 0.055f, b.position.z + (4.0f * b.faceDirZ) };
+        DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(padPos, {0, 1, 0}, 0.0f, {6.0f, 0.1f, 2.2f})), shader, LIGHTGRAY);
     }
 
-    // --- 3. Package Yard (Attached to Left wall of Warehouse) ---
+    // --- 3. Package Yard ---
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-8.0f, 0.04f, -22.0f}, {0, 1, 0}, 0.0f, {26.0f, 0.1f, 14.0f})), shader, Fade(LIGHTGRAY, 0.6f));
-    
-    // Yard Fencing (Back, Left, Front-Left, Right-Front)
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-8.0f,  1.5f, -29.0f}, {0, 1, 0}, 0.0f, {26.0f, 3.0f,  0.2f})), shader, DARKGRAY); 
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-21.0f, 1.5f, -22.0f}, {0, 1, 0}, 0.0f, { 0.2f, 3.0f, 14.0f})), shader, DARKGRAY); 
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-13.0f, 1.5f, -15.0f}, {0, 1, 0}, 0.0f, {16.0f, 3.0f,  0.2f})), shader, DARKGRAY); 
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({ 5.0f,  1.5f, -17.0f}, {0, 1, 0}, 0.0f, { 0.2f, 3.0f,  4.0f})), shader, DARKGRAY);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-8.0f,  0, -29.0f}, {0, 1, 0}, 0.0f, {26.2f, 1.5f,  0.2f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-21.0f, 0, -22.0f}, {0, 1, 0}, 0.0f, { 0.2f, 1.5f, 14.0f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({-13.1f, 0, -15.0f}, {0, 1, 0}, 0.0f, {16.2f, 1.5f,  0.2f})), shader, DARKGRAY); 
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({ 4.9f,  0, -17.0f}, {0, 1, 0}, 0.0f, { 0.2f, 1.5f,  4.0f})), shader, DARKGRAY);
 
-    // --- 4. Warehouse (Attached to Right of Yard) ---
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({10.0f, 0.045f, -17.0f}, {0, 1, 0}, 0.0f, {10.0f, 0.1f, 4.0f})), shader, DARKGRAY);
+    // --- 4. Warehouse ---
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({ 9.9f, 0.045f, -17.0f}, {0, 1, 0}, 0.0f, {10.2f, 0.1f, 4.0f})), shader, DARKGRAY);
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 1.5f, -24.0f}, {0, 1, 0}, 0.0f, {20.0f, 3.0f, 10.0f})), shader, LIGHTGRAY);
 
-    // Warehouse Vaulted Roof (Rotated 45 deg around X-Axis) -> Converted to radians!
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.0f, -24.0f}, {1, 0, 0}, 45.0f * DEG2RAD, {20.0f, 7.07f, 7.07f})), shader, DARKBLUE);
+    // MANSARD ROOF FIX: 3 stacked tiers.
+    // Creates a sloped edge and flat top without rotating the cubes into the walls
+    // Tier 1: The Eaves (slightly wider/deeper than the building, sitting right on top)
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.1f, -24.0f}, {0, 1, 0}, 0.0f, {20.4f, 0.4f, 10.4f})), shader, DARKBLUE);
+    // Tier 2: The Mid-Slope
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.5f, -24.0f}, {0, 1, 0}, 0.0f, {19.0f, 0.6f,  9.0f})), shader, DARKBLUE);
+    // Tier 3: The Flat Top
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.9f, -24.0f}, {0, 1, 0}, 0.0f, {17.0f, 0.4f,  7.0f})), shader, DARKBLUE);
 
     // Large Garage Door & Windows
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({10.0f, 1.25f, -18.9f}, {0, 1, 0}, 0.0f, {6.0f, 2.5f, 0.2f})), shader, GRAY);
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({16.0f, 1.5f, -18.9f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
-    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({21.0f, 1.5f, -18.9f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({10.0f, 1.25f, -18.85f}, {0, 1, 0}, 0.0f, {6.0f, 2.5f, 0.2f})), shader, GRAY);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({16.0f, 1.5f, -18.85f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
+    DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({21.0f, 1.5f, -18.85f}, {0, 1, 0}, 0.0f, {3.0f, 1.5f, 0.2f})), shader, SKYBLUE);
 }
 
 // Dense, randomized treeline along the 64x64 perimeter
@@ -94,7 +98,8 @@ void DrawTreeline(Model& cyl, Model& cone, const Matrix& worldRoot, Shader shade
         Matrix trunkLocal = TRS({x, 1.0f * heightMod, z}, {0,1,0}, 0.0f, {0.3f * sizeMod, 2.0f * heightMod, 0.3f * sizeMod});
         DrawModelWithWorldMatrix(cyl, ParentChild(worldRoot, trunkLocal), shader, DARKBROWN);
         
-        Matrix leafLocal = TRS({x, (2.0f * heightMod) + (1.5f * heightMod), z}, {0,1,0}, 0.0f, {1.6f * sizeMod, 3.0f * heightMod, 1.6f * sizeMod});
+        // Lowered Y offset from 1.5f to 1.4f so the leaves embed into the trunk slightly
+        Matrix leafLocal = TRS({x, (2.0f * heightMod) + (1.4f * heightMod), z}, {0,1,0}, 0.0f, {1.6f * sizeMod, 3.0f * heightMod, 1.6f * sizeMod});
         DrawModelWithWorldMatrix(cone, ParentChild(worldRoot, leafLocal), shader, DARKGREEN);
     };
 
