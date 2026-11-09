@@ -55,9 +55,6 @@ void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win1Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(win2Pos, {0, 1, 0}, 0.0f, {1.5f, 1.5f, 0.2f})), shader, SKYBLUE);
 
-        // PAD FIX: Centers exactly in the 2.0 unit gap between the house and the street
-        // Z-scale is 2.2 to safely embed into the house and street without tearing
-        // Y is 0.055 to sit just barely on top of the street asphalt (0.05)
         Vector3 padPos = { b.position.x, 0.055f, b.position.z + (4.0f * b.faceDirZ) };
         DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS(padPos, {0, 1, 0}, 0.0f, {6.0f, 0.1f, 2.2f})), shader, LIGHTGRAY);
     }
@@ -73,8 +70,6 @@ void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({ 9.9f, 0.045f, -17.0f}, {0, 1, 0}, 0.0f, {10.2f, 0.1f, 4.0f})), shader, DARKGRAY);
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 1.5f, -24.0f}, {0, 1, 0}, 0.0f, {20.0f, 3.0f, 10.0f})), shader, LIGHTGRAY);
 
-    // MANSARD ROOF FIX: 3 stacked tiers.
-    // Creates a sloped edge and flat top without rotating the cubes into the walls
     // Tier 1: The Eaves (slightly wider/deeper than the building, sitting right on top)
     DrawModelWithWorldMatrix(cube, ParentChild(worldRoot, TRS({15.0f, 3.1f, -24.0f}, {0, 1, 0}, 0.0f, {20.4f, 0.4f, 10.4f})), shader, DARKBLUE);
     // Tier 2: The Mid-Slope
@@ -92,14 +87,17 @@ void DrawNeighborhood(const std::vector<Building>& buildings, Model& cube, const
 void DrawTreeline(Model& cyl, Model& cone, const Matrix& worldRoot, Shader shader) 
 {
     auto DrawTree = [&](float x, float z) {
-        float sizeMod = 0.7f + 0.6f * fabs(sin(x * 9.1f + z * 13.7f)); 
-        float heightMod = 0.7f + 0.8f * fabs(cos(x * 7.3f - z * 11.2f));
+        // Size ranges [0.85, 1.15], height ranges [0.9, 1.3]
+        float sizeMod = 0.85f + 0.3f * fabs(sin(x * 9.1f + z * 13.7f)); 
+        float heightMod = 0.9f + 0.4f * fabs(cos(x * 7.3f - z * 11.2f));
         
-        Matrix trunkLocal = TRS({x, 1.0f * heightMod, z}, {0,1,0}, 0.0f, {0.3f * sizeMod, 2.0f * heightMod, 0.3f * sizeMod});
+        float trunkHeight = 2.0f * heightMod;
+        float leafHeight = 3.0f * heightMod;
+
+        Matrix trunkLocal = TRS({x, 0.0f, z}, {0,1,0}, 0.0f, {0.3f * sizeMod, trunkHeight, 0.3f * sizeMod});
         DrawModelWithWorldMatrix(cyl, ParentChild(worldRoot, trunkLocal), shader, DARKBROWN);
         
-        // Lowered Y offset from 1.5f to 1.4f so the leaves embed into the trunk slightly
-        Matrix leafLocal = TRS({x, (2.0f * heightMod) + (1.4f * heightMod), z}, {0,1,0}, 0.0f, {1.6f * sizeMod, 3.0f * heightMod, 1.6f * sizeMod});
+        Matrix leafLocal = TRS({x, trunkHeight - 0.2f, z}, {0,1,0}, 0.0f, {1.6f * sizeMod, leafHeight, 1.6f * sizeMod});
         DrawModelWithWorldMatrix(cone, ParentChild(worldRoot, leafLocal), shader, DARKGREEN);
     };
 
