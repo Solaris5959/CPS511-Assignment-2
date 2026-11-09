@@ -111,6 +111,93 @@ void DrawTreeline(Model& cyl, Model& cone, const Matrix& worldRoot, Shader shade
     }
 }
 
+void DrawControls(bool show)
+{
+    float scale = (float)SCREEN_HEIGHT / 1080.0f;
+    if (scale < 1.0f)
+        scale = 1.0f;
+
+    // Dynamically scaled UI elements
+    int headingSize = (int)(24 * scale);
+    int textSize = (int)(18 * scale);
+    int lineSpacing = (int)(26 * scale);
+    int sectionSpacing = (int)(36 * scale);
+    int padding = (int)(20 * scale);
+    int margin = (int)(15 * scale);
+
+    // Controls window, ripped from readme. Size scales on window size.
+    if (show)
+    {
+        // Proportional dimensions with a scaled minimum width
+        int minWidth = (int)(350 * scale);
+        int panelWidth = (SCREEN_WIDTH * 0.25f > minWidth) ? (int)(SCREEN_WIDTH * 0.25f) : minWidth;
+        int panelHeight = (int)(SCREEN_HEIGHT * 0.85f);
+
+        // Higher Contrast Background: Dark gray/black with high opacity
+        DrawRectangle(margin, margin, panelWidth, panelHeight, Fade(BLACK, 0.85f));
+        DrawRectangleLines(margin, margin, panelWidth, panelHeight, RAYWHITE);
+
+        int startX = margin + padding;
+        int currentY = margin + padding;
+
+        // Title
+        DrawText("DRONE CONTROLS\n(Press 'H' to hide)", startX, currentY, headingSize, YELLOW);
+        currentY += sectionSpacing + lineSpacing;
+
+        // Movement
+        DrawText("Movement", startX, currentY, headingSize, RAYWHITE);
+        currentY += (headingSize + 5);
+        DrawText("- W: Move Drone Forward", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- S: Move Drone Backward", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- A: Move Drone Left", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- D: Move Drone Right", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- R: Move Drone Up", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- F: Move Drone Down", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += sectionSpacing;
+
+        // Rotation
+        DrawText("Rotation", startX, currentY, headingSize, RAYWHITE);
+        currentY += (headingSize + 5);
+        DrawText("- Q: Yaw Drone Left", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- E: Yaw Drone Right", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += sectionSpacing;
+
+        // Camera
+        DrawText("Camera", startX, currentY, headingSize, RAYWHITE);
+        currentY += (headingSize + 5);
+        DrawText("- C: Switch to First Person", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- V: Switch to Third Person", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += sectionSpacing;
+
+        // Environment & Toggles
+        DrawText("Environment & Toggles", startX, currentY, headingSize, RAYWHITE);
+        currentY += (headingSize + 5);
+        DrawText("- Z: Switch Day/Night", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- X: Toggle Spotlight", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- Spacebar: Turn Drone On/Off", startX + padding, currentY, textSize, LIGHTGRAY);
+        currentY += lineSpacing;
+        DrawText("- Home: Reset Position", startX + padding, currentY, textSize, LIGHTGRAY);
+    }
+    else
+    {
+        // Show a scaled hint when hidden
+        int hintWidth = (int)(260 * scale);
+        int hintHeight = (int)(40 * scale);
+        DrawRectangle(margin, margin, hintWidth, hintHeight, Fade(BLACK, 0.85f));
+        DrawRectangleLines(margin, margin, hintWidth, hintHeight, RAYWHITE);
+        DrawText("Press 'H' to show controls", margin + (int)(15 * scale), margin + (int)(12 * scale), textSize, YELLOW);
+    }
+}
+
 int main()
 {
     // Initialization
@@ -302,69 +389,7 @@ int main()
             EndMode3D();
 
             /* Draw on-screen controls */
-            float scale = (float)SCREEN_HEIGHT / 1080.0f;
-            if (scale < 1.0f) scale = 1.0f;
-
-            // Dynamically scaled UI elements
-            int headingSize = (int)(24 * scale);
-            int textSize = (int)(18 * scale);
-            int lineSpacing = (int)(26 * scale);
-            int sectionSpacing = (int)(36 * scale);
-            int padding = (int)(20 * scale);
-            int margin = (int)(15 * scale);
-
-            // Controls window, ripped from readme. Size scales on window size. 
-            if (showControls) {
-                // Proportional dimensions with a scaled minimum width
-                int minWidth = (int)(350 * scale);
-                int panelWidth = (SCREEN_WIDTH * 0.25f > minWidth) ? (int)(SCREEN_WIDTH * 0.25f) : minWidth;
-                int panelHeight = (int)(SCREEN_HEIGHT * 0.85f);
-                
-                // Higher Contrast Background: Dark gray/black with high opacity
-                DrawRectangle(margin, margin, panelWidth, panelHeight, Fade(BLACK, 0.85f));
-                DrawRectangleLines(margin, margin, panelWidth, panelHeight, RAYWHITE);
-
-                int startX = margin + padding;
-                int currentY = margin + padding;
-
-                // Title
-                DrawText("DRONE CONTROLS\n(Press 'H' to hide)", startX, currentY, headingSize, YELLOW);
-                currentY += sectionSpacing + lineSpacing;
-
-                // Movement
-                DrawText("Movement", startX, currentY, headingSize, RAYWHITE); currentY += (headingSize + 5);
-                DrawText("- W: Move Drone Forward", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- S: Move Drone Backward", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- A: Move Drone Left", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- D: Move Drone Right", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- R: Move Drone Up", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- F: Move Drone Down", startX + padding, currentY, textSize, LIGHTGRAY); currentY += sectionSpacing;
-
-                // Rotation
-                DrawText("Rotation", startX, currentY, headingSize, RAYWHITE); currentY += (headingSize + 5);
-                DrawText("- Q: Yaw Drone Left", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- E: Yaw Drone Right", startX + padding, currentY, textSize, LIGHTGRAY); currentY += sectionSpacing;
-
-                // Camera
-                DrawText("Camera", startX, currentY, headingSize, RAYWHITE); currentY += (headingSize + 5);
-                DrawText("- C: Switch to First Person", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- V: Switch to Third Person", startX + padding, currentY, textSize, LIGHTGRAY); currentY += sectionSpacing;
-
-                // Environment & Toggles
-                DrawText("Environment & Toggles", startX, currentY, headingSize, RAYWHITE); currentY += (headingSize + 5);
-                DrawText("- Z: Switch Day/Night", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- X: Toggle Spotlight", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- Spacebar: Turn Drone On/Off", startX + padding, currentY, textSize, LIGHTGRAY); currentY += lineSpacing;
-                DrawText("- Home: Reset Position", startX + padding, currentY, textSize, LIGHTGRAY);
-
-            } else {
-                // Show a scaled hint when hidden
-                int hintWidth = (int)(260 * scale);
-                int hintHeight = (int)(40 * scale);
-                DrawRectangle(margin, margin, hintWidth, hintHeight, Fade(BLACK, 0.85f));
-                DrawRectangleLines(margin, margin, hintWidth, hintHeight, RAYWHITE);
-                DrawText("Press 'H' to show controls", margin + (int)(15 * scale), margin + (int)(12 * scale), textSize, YELLOW);
-            }
+            DrawControls(showControls);
         EndDrawing();
     }
 
