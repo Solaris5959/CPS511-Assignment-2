@@ -111,6 +111,7 @@ void DrawTreeline(Model& cyl, Model& cone, const Matrix& worldRoot, Shader shade
     }
 }
 
+// Drawing on screen controls scaling with screen size
 void DrawControls(bool show)
 {
     float scale = (float)SCREEN_HEIGHT / 1080.0f;
