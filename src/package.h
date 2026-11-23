@@ -9,4 +9,7 @@ class package {
 
     public:
     package(Vector3 startingPos, Vector3 startingRotation);
+
+    void followDrone(Vector3 dronePos, Vector3 droneYaw);
+    void fall();
 };
